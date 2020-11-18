@@ -10,12 +10,11 @@ db = client.traveldb
 ## HTML을 주는 부분
 @app.route('/')
 def home():
-    return render_template('HTML.html')
+    return render_template('index.html')
 
 
 ## API 역할을 하는 부분
 @app.route('/review', methods=['POST'])
-
 def write_review():
     country_receive = request.form['country_give']
     city_receive = request.form['city_give']
@@ -31,24 +30,29 @@ def write_review():
         'city': city_receive,
         'place' : place_receive,
         'address' : address_receive,
-        'category' : category_receive,
+        'ctegory' : category_receive,
         'comment': comment_receive,
         'url' : url_receive
     }
 
-    # reviews에 review 저장하기
     db.reviews.insert_one(review)
-
-    # 성공 여부 & 성공 메시지 반환
-    return jsonify({'result': 'success', 'msg': '포스가 성공적으로 작성되었습니다.'})
+    return jsonify({'result': 'success', 'msg': '포스트가 성공적으로 작성되었습니다.'})
 
 
 @app.route('/review', methods=['GET'])
 def read_reviews():
-    # 1. DB에서 리뷰 정보 모두 가져오기
     reviews = list(db.reviews.find({}, {'_id': 0}))
-    # 2. 성공 여부 & 리뷰 목록 반환하기
     return jsonify({'result': 'success', 'reviews': reviews})
+
+
+# 조회할 나라 정보 받아오고 조회하기.
+@app.route('/search', methods=['GET'])
+def search_reviews():
+    country_receive = request.args.get('country_searched')
+    print(country_receive)
+    same_country = list(db.reviews.find({'country' : country_receive}, {'_id': 0}))
+
+    return jsonify({'result': 'success', 'reviews': same_country})
 
 
 if __name__ == '__main__':

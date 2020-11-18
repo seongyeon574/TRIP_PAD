@@ -5,6 +5,10 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta property="og:title" content="TRIP PAD"/>
+        <meta property="og:description" content="TRIP PAD에서 가고 싶은 여행지를 보기 쉽게 정리하세요!"/>
+        <meta property="og:image" content="{{ url_for('static', filename='ogimage.png') }}"/>
+
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -19,27 +23,29 @@
 
         <!-- 구글폰트 -->
         <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
-
-
         <title>TRIP PAD | 나의 여행 노트</title>
 
         <!-- style -->
         <style type="text/css">
+
             * {
                 font-family: 'Gaegu', cursive;
+            }
+
+            .all {
+                background-color: ivory;
             }
 
             .total {
                 width: 900px;
                 margin: auto;
-
             }
 
             .jumbotron {
-                color: cornflowerblue;
+                color: black;
                 width: 800px;
                 margin-top: 30px;
-                /*background-image: url;*/
+                background-image: url('https://peopleciety.com/wp-content/uploads/2017/11/%EC%84%B8%EA%B3%84-%EC%A7%80%EB%8F%84-world_map3.jpg');
                 background-position: center;
                 background-size: 800px;
                 border: black;
@@ -86,12 +92,9 @@
                     $("#btn-post-box").text("CLOSE TRIP PAD");
                 }
             }
-        </script>
 
 
-        <script type="text/javascript">
-
-            $(document).ready(function() {
+            $(document).ready(function () {
                 $("#reviews-box").html("");
                 showReview();
             });
@@ -160,11 +163,14 @@
                 })
             }
 
-            function showReview() {
+            function showReview(country) {
                 // 1. 리뷰 목록을 서버에 요청하기
+                // url = "/"
+                url = `/review?country=${country}`
+
                 $.ajax({
                     type: "GET",
-                    url: "/review",
+                    url: url,
                     data: {},
                     success: function (response) {
                         // 2. 요청 성공 여부 확인하기
@@ -172,7 +178,7 @@
                             let reviews = response["reviews"];
                             // 3. 요청 성공했을 때 리뷰를 올바르게 화면에 나타내기
                             for (let i = 0; i < reviews.length; i++) {
-                                makeCard(reviews[i]["country"], reviews[i]["city"], reviews[i]["place"]);
+                                makeCard(reviews[i]["url"], reviews[i]["place"], reviews[i]["country"], reviews[i]["comment"]);
                             }
                         } else {
                             alert("리뷰를 받아오지 못했습니다");
@@ -181,115 +187,148 @@
                 })
             }
 
-            function makeCard(url, country, city, place) {
+            function makeCard(url, place, country, comment) {
                 let tempHtml = `<div class="card">
                                     <img class="card-img-top" src=${url}>
                                     <div class="card-body">
                                         <a href="#" class="card-title">${place}</a>
                                         <p class="card-text">${country}</p>
-                                        <p  class="card-text comment">${city}</p>
+                                        <p  class="card-text comment">${comment}</p>
                                     </div></div>`
 
                 $("#reviews-box").append(tempHtml);
             }
+
+            function searchReview() {
+                console.log("test")
+                $("#reviews-box").html('');
+                let search = $("#input").val();
+                console.log(search)
+                $.ajax({
+                    type: "GET",
+                    url: "/search?country_searched=" + search,
+                    data: {},
+                    success: function (response) {
+                        console.log("success")
+                        // 2. 요청 성공 여부 확인하기
+                        if (response["result"] == "success") {
+
+                            $("#post-box").empty();
+                            let reviews = response["reviews"];
+                            // 3. 요청 성공했을 때 리뷰를 올바르게 화면에 나타내기
+                            for (let i = 0; i < reviews.length; i++) {
+                                makeCard(reviews[i]["url"], reviews[i]["place"], reviews[i]["country"], reviews[i]["comment"]);
+                            }
+                        } else {
+                            alert("리뷰를 받아오지 못했습니다");
+                        }
+                    }
+                })
+            }
+
         </script>
 
     </head>
 
     <body>
+        <div class="all">
 
-        <!--세계지도를 바탕으로 국가를 검색할 수 있는 부분-->
-        <div class="total">
-            <div class="jumbotron">
-                <h1 class="display">MEMO YOUR TRIP :)</h1>
-                <nav class="navbar">
-                    <form class="form-inline">
-                        <input class="form-control mr-sm-2" type="search" placeholder="ex.한국" aria-label="search">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">search</button>
-                    </form>
-                </nav>
-            </div>
-
-
-            <div class="logo">
-                <img src=static/logo.jpg" width="250px"/>
-            </div>
-
-            <!--글 쓰는 버튼.-->
-            <div>
-                <p class="write">
-                    <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">OPEN TRIP PAD
-                    </button>
-                </p>
-            </div>
+            <!--세계지도를 바탕으로 국가를 검색할 수 있는 부분-->
+            <div class="total">
+                <div class="jumbotron">
+                    <h1 class="display">MEMO YOUR TRIP</h1>
+                    <nav class="navbar">
+                        <input class="form-control mr-sm-2" type="search" placeholder="ex.한국" aria-label="search"
+                               id="input">
+                        <button onclick="searchReview()" class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                            search
+                        </button>
+                    </nav>
+                </div>
 
 
-            <!--글을 작성하는 곳-->
-            <div id="post-box" class="form-post" style="display:none">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='logo.png') }}" width="250px"/>
+
+                </div>
+
+                <!--글 쓰는 버튼.-->
                 <div>
-
-                    <!--지역 입력-->
-                    <div class="form-group">
-                        <label for="country">국가</label>
-                        <textarea id="country" class="form-control" rows="1"></textarea>
-                    </div>
-
-                    <!--지역 입력-->
-                    <div class="form-group">
-                        <label for="city">지역</label>
-                        <textarea id="city" class="form-control" rows="1"></textarea>
-                    </div>
-
-                    <!--장소명 입력-->
-                    <div class="form-group">
-                        <label for="place">장소</label>
-                        <textarea id="place" class="form-control" rows="1"></textarea>
-                    </div>
-
-                    <!--주소 입력-->
-                    <div class="form-group">
-                        <label for="address">주소</label>
-                        <textarea id="address" class="form-control" rows="1"></textarea>
-                    </div>
-
-                    <!--카테고리 선택 입력-->
-                    <div class="form-group">
-                        <label for="category">choose category</label>
-                        <textarea id="category" class="form-control" rows="1"></textarea>
-                    </div>
-
-                    <!--글 작성-->
-                    <div class="form-group">
-                        <label for="comment">comment</label>
-                        <textarea id="comment" class="form-control" rows="5"></textarea>
-                    </div>
-
-                    <!--url 입력-->
-                    <div class="form-group">
-                        <label for="url">정보 출처 url</label>
-                        <input id="url" class="form-control" placeholder="">
-                    </div>
-
-                    <button onclick= "makeReview()" type="button" class="btn btn-primary">save</button>
+                    <p class="write">
+                        <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">OPEN TRIP
+                            PAD
+                        </button>
+                    </p>
                 </div>
-            </div>
 
 
-            <div id="cards-box" class="card-columns">
+                <!--글을 작성하는 곳-->
+                <div id="post-box" class="form-post" style="display:none">
+                    <div>
 
-                <div class="card">
-                    <img class="card-img-top"
-                         src="https://www.eurail.com/content/dam/images/eurail/Italy%20OCP%20Promo%20Block.adaptive.767.1535627244182.jpg"
-                         alt="Card image cap">
-                    <div class="card-body">
-                        <a href="#" class="card-title">지역 : 장소 </a>
-                        <p class="card-text">적은 글을 보여주기.</p>
-                        <p class="card-text comment">후기가 있는 경우 별점표 띄우기.</p>
+                        <!--국가. 입력-->
+                        <div class="form-group">
+                            <label for="country">국가</label>
+                            <textarea id="country" class="form-control" rows="1"></textarea>
+                        </div>
+
+                        <!--지역 입력-->
+                        <div class="form-group">
+                            <label for="city">지역</label>
+                            <textarea id="city" class="form-control" rows="1"></textarea>
+                        </div>
+
+                        <!--장소명 입력-->
+                        <div class="form-group">
+                            <label for="place">장소</label>
+                            <textarea id="place" class="form-control" rows="1"></textarea>
+                        </div>
+
+                        <!--주소 입력-->
+                        <div class="form-group">
+                            <label for="address">주소</label>
+                            <textarea id="address" class="form-control" rows="1"></textarea>
+                        </div>
+
+                        <!--카테고리 선택 입력-->
+                        <div class="form-group">
+                            <label for="category">choose category</label>
+                            <textarea id="category" class="form-control" rows="1"></textarea>
+                        </div>
+
+                        <!--글 작성-->
+                        <div class="form-group">
+                            <label for="comment">comment</label>
+                            <textarea id="comment" class="form-control" rows="5"></textarea>
+                        </div>
+
+                        <!--url 입력-->
+                        <div class="form-group">
+                            <label for="url">정보 출처 url</label>
+                            <input id="url" class="form-control" placeholder="">
+                        </div>
+
+                        <button onclick="makeReview()" type="button" class="btn btn-primary">save</button>
                     </div>
                 </div>
 
+
+                <div id="reviews-box" class="card-columns">
+
+                    <div class="card">
+                        <img class="card-img-top"
+                             src="https://www.eurail.com/content/dam/images/eurail/Italy%20OCP%20Promo%20Block.adaptive.767.1535627244182.jpg"
+                             alt="Card image cap">
+                        <div class="card-body">
+                            <a href="#" class="card-title">장소. </a>
+                            <p class="card-text">지역.</p>
+                            <p class="card-text comment">장소에 대해 적은 글.</p>
+                        </div>
+                    </div>
+
+
+                </div>
             </div>
-        </div>
         </div>
     </body>
 
