@@ -44,7 +44,7 @@
             .jumbotron {
                 color: black;
                 width: 800px;
-                margin-top: 30px;
+                margin-top: 15px;
                 background-image: url('https://peopleciety.com/wp-content/uploads/2017/11/%EC%84%B8%EA%B3%84-%EC%A7%80%EB%8F%84-world_map3.jpg');
                 background-position: center;
                 background-size: 800px;
@@ -56,13 +56,21 @@
             .logo {
                 position: absolute;
                 left: 970px;
-                bottom: 400px;
+                bottom: 485px;
             }
 
             .write {
                 position: absolute;
                 left: 1030px;
-                bottom: 350px;
+                bottom: 440px;
+            }
+
+            .search{
+                width : 400px;
+
+            }
+
+            .search_button{
             }
 
 
@@ -238,9 +246,10 @@
                 <div class="jumbotron">
                     <h1 class="display">MEMO YOUR TRIP</h1>
                     <nav class="navbar">
-                        <input class="form-control mr-sm-2" type="search" placeholder="ex.한국" aria-label="search"
+                        <p>찾고 싶은 국가를 입력해보세요.</p>
+                        <input class="form-control mr-sm-2 search" type="search" placeholder="ex.한국" aria-label="search"
                                id="input">
-                        <button onclick="searchReview()" class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                        <button onclick="searchReview()" class="btn btn-outline-success my-2 my-sm-0 search_button" type="submit">
                             search
                         </button>
                     </nav>
